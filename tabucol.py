@@ -171,10 +171,10 @@ def test(nx_graph, k, draw=False):
     color_lists, numberofcolors = read_matrix_from_file('./matrix.txt')
     coloring = tabucol(graph.todense(), alg1_coloring, color_lists, numberofcolors, debug=True)
     if draw:
-        values = [coloring[node] for node in nx_graph]
+        values = list(coloring.values())
         nx.draw(nx_graph, node_color=values, pos=nx.shell_layout(nx_graph))
         plt.show()
 
 if __name__ == "__main__":
     G = nx.read_graphml("edgelistfile")
-    test(G, 5, False)
+    test(G, 5, True)

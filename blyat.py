@@ -3,39 +3,12 @@ from random import randrange
 
 import random
 
-def get_random_index_with_one(matrix, row_index):
-    row = matrix[row_index]
-    indices_with_one = [index for index, value in enumerate(row) if value == 1]
-    
-    if not indices_with_one:
-        return None  # Если в строке нет элементов, равных 1
+# Given dictionary
+input_dict = {0: 0, 1: 2, 2: 1, 3: 2, 4: 3}
 
-    return random.choice(indices_with_one)
+# Convert dictionary values to list
+result_list = list(input_dict.values())
 
-# Пример матрицы
-matrix = [
-    [1, 1, 0, 1, 1, 1, 1],
-    [0, 0, 1, 1, 0, 0, 0],
-    [1, 1, 1, 1, 1, 1, 0],
-    [1, 0, 1, 0, 1, 1, 1],
-    [1, 0, 0, 0, 0, 1, 1],
-    [1, 0, 0, 1, 0, 0, 1],
-    [0, 0, 1, 1, 0, 1, 0],
-    [0, 1, 0, 1, 1, 1, 0],
-    [1, 0, 1, 1, 0, 0, 0],
-    [1, 1, 1, 1, 1, 0, 0],
-    [1, 1, 0, 0, 1, 0, 1],
-    [1, 1, 0, 0, 1, 1, 1],
-    [1, 0, 1, 1, 1, 1, 0],
-    [0, 0, 0, 1, 0, 1, 1],
-    [1, 1, 0, 1, 0, 0, 1],
-    [1, 1, 1, 0, 1, 1, 0]
-]
-
-# Выбор строки для примера
-row_index = 0
-
-# Получение случайного индекса столбца, элемент которого равен 1
-random_index = get_random_index_with_one(matrix, row_index)
-print(random_index)
+# Print the resulting list
+print(result_list)
 
