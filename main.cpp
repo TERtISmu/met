@@ -84,17 +84,17 @@ void saveGraphAsEdgeList(int **AdjacencyMatrix, int numVertices,
   outputFile.close();
 }
 
-void saveColoringInFile(int *Coloring, int numberofvertex) {
-  cout << "alg1 coloring: " << endl;
-  for (int j = 0; j < numberofvertex; j++) {
-    cout << Coloring[j] << " ";
-  }
-  cout << endl;
+void saveColoringInFile(int *Coloring, int vertex_colored, int numberofvertex) {
+  // cout << "alg1 coloring: " << endl;
+  // for (int j = 0; j < numberofvertex; j++) {
+  //   cout << Coloring[j] << " ";
+  // }
+  // cout << endl;
 
   ofstream outfile("array.txt");
   if (outfile.is_open()) {
     outfile << numberofvertex << "\n"; // write the size of the array
-    for (int i = 0; i < numberofvertex; ++i) {
+    for (int i = 0; i < vertex_colored; ++i) {
       outfile << Coloring[i] << " ";
     }
     outfile << "\n";
@@ -358,15 +358,18 @@ int algorithm1(int **M, int **L, int numberofvertex, int numberofcolors) {
   saveColorLists(L, numberofvertex, numberofcolors);
 
   int *l = new int[numberofvertex];
+  int vertex_colored = 0;
   for (int i = 0; i < numberofvertex; i++) {
     l[i] = 0;
   }
   int q, p = 0;
   for (int i = 0; i < numberofvertex; i++) {
+    vertex_colored++;
     for (int j = 0; j < numberofcolors; j++) {
       p += L[i][j];
     }
     if (p == 0) {
+      saveColoringInFile(l, vertex_colored, numberofvertex);
       delete[] l;
       return 0;
     } else
@@ -384,7 +387,7 @@ int algorithm1(int **M, int **L, int numberofvertex, int numberofcolors) {
     p = 0;
   }
 
-  saveColoringInFile(l, numberofvertex);
+  saveColoringInFile(l, vertex_colored, numberofvertex);
 
   delete[] l;
   return 1;

@@ -55,7 +55,6 @@ def tabucol(graph, alg1_coloring, color_lists, number_of_colors, tabu_size=7, re
     aspiration_level = dict()
 
     while iterations < max_iterations:
-        print("iteration:", iterations)
         # Count node pairs (i,j) which are adjacent and have the same color.
         move_candidates = set()  # use a set to avoid duplicates
         conflict_count = 0
@@ -75,7 +74,6 @@ def tabucol(graph, alg1_coloring, color_lists, number_of_colors, tabu_size=7, re
         # Generate neighbor solutions.
         new_solution = None
         for r in range(reps):
-            print("rep:", r)
             # Choose a node to move.
             node = move_candidates[randrange(0, len(move_candidates))]
             
@@ -172,7 +170,7 @@ def test(nx_graph, k, draw=False):
     coloring = tabucol(graph.todense(), alg1_coloring, color_lists, numberofcolors, debug=True)
     if draw:
         values = list(coloring.values())
-        nx.draw(nx_graph, node_color=values, pos=nx.shell_layout(nx_graph))
+        nx.draw(nx_graph, node_color=values, with_labels=True, pos=nx.shell_layout(nx_graph))
         plt.show()
 
 if __name__ == "__main__":
