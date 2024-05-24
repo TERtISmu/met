@@ -104,6 +104,23 @@ void saveColoringInFile(int *Coloring, int numberofvertex) {
   }
 }
 
+void saveColorLists(int **L, int numberofvertex, int numberofcolors) {
+  ofstream outfile("matrix.txt");
+  if (outfile.is_open()) {
+    outfile << numberofvertex << " " << numberofcolors
+            << "\n"; // write the size of the matrix
+    for (int i = 0; i < numberofvertex; ++i) {
+      for (int j = 0; j < numberofcolors; ++j) {
+        outfile << L[i][j] << " ";
+      }
+      outfile << "\n";
+    }
+    outfile.close();
+  } else {
+    cerr << "Unable to open file";
+  }
+}
+
 int main() {
   srand(time(0));
   unsigned int start_time = clock();
@@ -337,6 +354,9 @@ int exact_algorithm(int **M, int **L, int numberofvertex, int numberofcolors) {
 }
 
 int algorithm1(int **M, int **L, int numberofvertex, int numberofcolors) {
+
+  saveColorLists(L, numberofvertex, numberofcolors);
+
   int *l = new int[numberofvertex];
   for (int i = 0; i < numberofvertex; i++) {
     l[i] = 0;
@@ -353,7 +373,7 @@ int algorithm1(int **M, int **L, int numberofvertex, int numberofcolors) {
       do {
         q = rand() % numberofcolors;
         if (L[i][q] == 1) {
-          l[i] = q + 1;
+          l[i] = q;
         }
       } while (L[i][q] != 1);
     for (int j = 0; j < numberofvertex; j++) {

@@ -1,8 +1,33 @@
 from collections import deque
 from random import randrange
 import networkx as nx
+import random
 
-def tabucol(graph, number_of_colors, tabu_size=7, reps=100, max_iterations=10000, debug=False):
+def read_array_from_file(filename):
+    with open(filename, 'r') as file:
+        numberofvertex = int(file.readline().strip())
+        array = list(map(int, file.readline().strip().split()))
+    return array
+
+def read_matrix_from_file(filename):
+    with open(filename, 'r') as file:
+        numberofvertex, numberofcolors = map(int, file.readline().strip().split())
+        matrix = []
+        for _ in range(numberofvertex):
+            row = list(map(int, file.readline().strip().split()))
+            matrix.append(row)
+    return matrix, numberofcolors
+
+def get_random_index(matrix, row_index):
+    row = matrix[row_index]
+    indices_with_one = [index for index, value in enumerate(row) if value == 1]
+    
+    if not indices_with_one:
+        return None  # Если в строке нет элементов, равных 1
+
+    return random.choice(indices_with_one)
+
+def tabucol(graph, alg1_coloring, color_lists, number_of_colors, tabu_size=7, reps=100, max_iterations=10000, debug=False):
     # graph is assumed to be the adjacency matrix of an undirected graph with no self-loops
     # nodes are represented with indices, [0, 1, ..., n-1]
     # colors are represented by numbers, [0, 1, ..., k-1]
@@ -15,8 +40,16 @@ def tabucol(graph, number_of_colors, tabu_size=7, reps=100, max_iterations=10000
     # solution is a map of nodes to colors
     # Generate a random solution:
     solution = dict()
-    for i in range(len(graph)):
-        solution[i] = colors[randrange(0, len(colors))]
+    # for i in range(len(graph)):
+        # solution[i] = colors[randrange(0, len(colors))]
+    
+    for i in range(len(color_lists)):
+        if (i <= len(alg1_coloring) - 1):
+            solution[i] = alg1_coloring[i]
+        else:
+            solution[i] = get_random_index(color_lists, i)
+    
+    
 
     # Aspiration level A(z), represented by a mapping: f(s) -> best f(s') seen so far
     aspiration_level = dict()
@@ -47,10 +80,12 @@ def tabucol(graph, number_of_colors, tabu_size=7, reps=100, max_iterations=10000
             node = move_candidates[randrange(0, len(move_candidates))]
             
             # Choose color other than current.
-            new_color = colors[randrange(0, len(colors) - 1)]
+            # new_color = colors[randrange(0, len(colors) - 1)]
+            new_color = get_random_index(color_lists, node)
             if solution[node] == new_color:
                 # essentially swapping last color with current color for this calculation
-                new_color = colors[-1]
+                # new_color = colors[-1]
+                new_color = get_random_index(color_lists, node)
 
             # Create a neighbor solution
             new_solution = solution.copy()
@@ -132,7 +167,9 @@ except ImportError:
 
 def test(nx_graph, k, draw=False):
     graph = nx.adjacency_matrix(nx_graph)
-    coloring = tabucol(graph.todense(), k, debug=True)
+    alg1_coloring = read_array_from_file('./array.txt')
+    color_lists, numberofcolors = read_matrix_from_file('./matrix.txt')
+    coloring = tabucol(graph.todense(), alg1_coloring, color_lists, numberofcolors, debug=True)
     if draw:
         values = [coloring[node] for node in nx_graph]
         nx.draw(nx_graph, node_color=values, pos=nx.shell_layout(nx_graph))
