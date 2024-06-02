@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <iostream>
 #include <stdio.h>
+#include <string>
 using namespace std;
 
 int exact_algorithm(int **, int **, int, int);
@@ -13,7 +14,7 @@ int algorithm5(int **, int **, int, int);
 int algorithm4(int **, int **, int, int);
 int algorithm3(int **, int **, int, int);
 int algorithm2(int **, int **, int, int);
-int algorithm1(int **, int **, int, int);
+int algorithm1(int **, int **, int, int, int);
 int *prufercode_generate(int);
 int **printTreeEdges(int[], int);
 
@@ -36,13 +37,13 @@ void printGraphInfo(int **M, int **L, int numberofvertex, int numberofcolors,
   cout << "coloring exist: " << coloring_exist << endl;
   cout << "coloring found alg1: " << coloring_found_alg1 << endl;
   cout << "coloring found alg2: " << coloring_found_alg2 << endl;
-  cout << "coloring found alg3: " << coloring_found_alg3 << endl;
+  // cout << "coloring found alg3: " << coloring_found_alg3 << endl;
 
-  cout << "Matrix M:" << endl;
-  printMatrix(M, numberofvertex, numberofvertex);
+  // cout << "Matrix M:" << endl;
+  // printMatrix(M, numberofvertex, numberofvertex);
 
-  cout << "Matrix L:" << endl;
-  printMatrix(L, numberofvertex, numberofcolors);
+  // cout << "Matrix L:" << endl;
+  // printMatrix(L, numberofvertex, numberofcolors);
 
   cout << endl;
 }
@@ -84,16 +85,11 @@ void saveGraphAsEdgeList(int **AdjacencyMatrix, int numVertices,
   outputFile.close();
 }
 
-void saveColoringInFile(int *Coloring, int vertex_colored, int numberofvertex) {
-  // cout << "alg1 coloring: " << endl;
-  // for (int j = 0; j < numberofvertex; j++) {
-  //   cout << Coloring[j] << " ";
-  // }
-  // cout << endl;
-
-  ofstream outfile("array.txt");
+void saveColoringInFile(int *Coloring, int vertex_colored, int numberofvertex,
+                        string &str) {
+  ofstream outfile(str);
   if (outfile.is_open()) {
-    outfile << numberofvertex << "\n"; // write the size of the array
+    outfile << numberofvertex << "\n";
     for (int i = 0; i < vertex_colored; ++i) {
       outfile << Coloring[i] << " ";
     }
@@ -104,11 +100,11 @@ void saveColoringInFile(int *Coloring, int vertex_colored, int numberofvertex) {
   }
 }
 
-void saveColorLists(int **L, int numberofvertex, int numberofcolors) {
-  ofstream outfile("matrix.txt");
+void saveColorLists(int **L, int numberofvertex, int numberofcolors,
+                    string &str) {
+  ofstream outfile(str);
   if (outfile.is_open()) {
-    outfile << numberofvertex << " " << numberofcolors
-            << "\n"; // write the size of the matrix
+    outfile << numberofvertex << " " << numberofcolors << "\n";
     for (int i = 0; i < numberofvertex; ++i) {
       for (int j = 0; j < numberofcolors; ++j) {
         outfile << L[i][j] << " ";
@@ -125,16 +121,33 @@ int main() {
   srand(time(0));
   unsigned int start_time = clock();
 
-  const int r = 4, numberofgraphs = 1;
+  const int r = 4, numberofgraphs = 100;
   int numberofvertex, numberofcolors, x;
   int **M, **L, **M0, **M1, **M2, **M3, **L0, **L1, **L2, **L3;
   int *s, result[r] = {0};
 
+  ofstream outfile("not_solved_graphs_by_alg1");
+
+  ofstream outfile1("not_solved_graphs_by_alg2");
+
+  if (!outfile || !outfile1) {
+    std::cerr << "Unable to open file for writing" << std::endl;
+    return 1;
+  }
+
   for (int u = 0; u < numberofgraphs; u++) {
-    int prufersize = rand() % 16 + 3;
+
+    int min = 10;
+    int max = 20;
+    int prufersize = rand() % (max - min + 1) + min;
+
     int numberofvertex = prufersize + 2;
     int *prufercode = prufercode_generate(prufersize);
-    numberofcolors = rand() % (numberofvertex - 1) + 2;
+
+    min = numberofvertex * 0.2;
+    max = numberofvertex * 0.5;
+    numberofcolors = rand() % (max - min + 1) + min;
+
     s = new int[numberofvertex];
     for (int i = 0; i < numberofvertex; i++) {
       s[i] = 0;
@@ -190,19 +203,32 @@ int main() {
       }
 
     int coloring_exist, coloring_found_alg1, coloring_found_alg2,
-        coloring_found_alg3;
+        coloring_found_alg3 = 0;
 
     coloring_exist = exact_algorithm(M0, L0, numberofvertex, numberofcolors);
-    coloring_found_alg1 = algorithm1(M1, L1, numberofvertex, numberofcolors);
+    coloring_found_alg1 = algorithm1(M1, L1, numberofvertex, numberofcolors, u);
     coloring_found_alg2 = algorithm2(M2, L2, numberofvertex, numberofcolors);
     coloring_found_alg3 = algorithm3(M3, L3, numberofvertex, numberofcolors);
 
-    // Print matrices M and L
     printGraphInfo(M, L, numberofvertex, numberofcolors, coloring_exist,
                    coloring_found_alg1, coloring_found_alg2,
                    coloring_found_alg3, u);
 
-    saveGraphAsEdgeList(M, numberofvertex, "edgelistfile");
+    string str = "./graphs/graphml";
+    str = str + to_string(u);
+    saveGraphAsEdgeList(M, numberofvertex, str);
+
+    str = "./lists/list";
+    str = str + to_string(u);
+    saveColorLists(L, numberofvertex, numberofcolors, str);
+
+    if (coloring_exist == 1 && coloring_found_alg1 == 0) {
+      outfile << u << " ";
+    }
+
+    if (coloring_exist == 1 && coloring_found_alg2 == 0) {
+      outfile1 << u << " ";
+    }
 
     result[0] += coloring_exist;
     result[1] += coloring_found_alg1;
@@ -224,17 +250,28 @@ int main() {
     delete[] s;
   }
 
+  outfile.close();
+  outfile1.close();
+
   cout << "\nNumber of randomly generated colored graphs from "
        << numberofgraphs << endl
        << "(Algorithm 3) by exhaustive search algorithm: " << result[0] << endl
        << "(Algorithm 1) by simplest heuristic algorithm: " << setprecision(3)
-       << "" << (float)result[1] / (float)result[0] * 100 << " %" << endl
+       << "" << result[1] << "  " << (float)result[1] / (float)result[0] * 100
+       << " %" << endl
        << "(Algorithm 2) by modified heuristic algorithm: "
-       << " " << (float)result[2] / (float)result[0] * 100 << " % " << endl
+       << "" << result[2] << "  " << (float)result[2] / (float)result[0] * 100
+       << " % " << endl
        << "(Algorithm 2.1) without condition for selecting vertices with "
           "minimum degree: "
        << "" << (float)result[3] / (float)result[0] * 100 << " %" << endl
        << endl;
+
+  ofstream outfile2("results");
+  outfile2 << numberofgraphs << " " << result[0] << " " << result[1] << " "
+           << (float)result[1] / (float)result[0] * 100 << " " << result[2]
+           << " " << (float)result[2] / (float)result[0] * 100;
+  outfile2.close();
 
   unsigned int end_time = clock();
   unsigned int search_time = end_time - start_time;
@@ -353,9 +390,10 @@ int exact_algorithm(int **M, int **L, int numberofvertex, int numberofcolors) {
   return 1;
 }
 
-int algorithm1(int **M, int **L, int numberofvertex, int numberofcolors) {
-
-  saveColorLists(L, numberofvertex, numberofcolors);
+int algorithm1(int **M, int **L, int numberofvertex, int numberofcolors,
+               int graph_number) {
+  string str = "./colorings/coloring";
+  str = str + to_string(graph_number);
 
   int *l = new int[numberofvertex];
   int vertex_colored = 0;
@@ -369,7 +407,7 @@ int algorithm1(int **M, int **L, int numberofvertex, int numberofcolors) {
       p += L[i][j];
     }
     if (p == 0) {
-      saveColoringInFile(l, vertex_colored, numberofvertex);
+      saveColoringInFile(l, vertex_colored, numberofvertex, str);
       delete[] l;
       return 0;
     } else
@@ -387,7 +425,7 @@ int algorithm1(int **M, int **L, int numberofvertex, int numberofcolors) {
     p = 0;
   }
 
-  saveColoringInFile(l, vertex_colored, numberofvertex);
+  saveColoringInFile(l, vertex_colored, numberofvertex, str);
 
   delete[] l;
   return 1;

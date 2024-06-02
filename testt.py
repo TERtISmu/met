@@ -2,8 +2,6 @@ import networkx as nx
 import matplotlib.pyplot as plt
 
 
-# G = nx.complete_graph(5)
-# nx.write_graphml_lxml(G, "fourpath.graphml")
 
 G = nx.read_graphml("edgelistfile")
 
